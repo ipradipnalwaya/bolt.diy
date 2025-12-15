@@ -160,11 +160,11 @@ export async function getTemplates(templateName: string, title?: string) {
      */
   }
 
-  // exclude    .bolt
-  filteredFiles = filteredFiles.filter((x) => x.path.startsWith('.bolt') == false);
+  // exclude    .webbanao
+  filteredFiles = filteredFiles.filter((x) => x.path.startsWith('.webbanao') == false);
 
-  // check for ignore file in .bolt folder
-  const templateIgnoreFile = files.find((x) => x.path.startsWith('.bolt') && x.name == 'ignore');
+  // check for ignore file in .webbanao folder
+  const templateIgnoreFile = files.find((x) => x.path.startsWith('.webbanao') && x.name == 'ignore');
 
   const filesToImport = {
     files: filteredFiles,
@@ -184,20 +184,20 @@ export async function getTemplates(templateName: string, title?: string) {
   }
 
   const assistantMessage = `
-Bolt is initializing your project with the required files using the ${template.name} template.
-<boltArtifact id="imported-files" title="${title || 'Create initial files'}" type="bundled">
+WebBanao is initializing your project with the required files using the ${template.name} template.
+<webbanaoArtifact id="imported-files" title="${title || 'Create initial files'}" type="bundled">
 ${filesToImport.files
   .map(
     (file) =>
-      `<boltAction type="file" filePath="${file.path}">
+      `<webbanaoAction type="file" filePath="${file.path}">
 ${file.content}
-</boltAction>`,
+</webbanaoAction>`,
   )
   .join('\n')}
-</boltArtifact>
+</webbanaoArtifact>
 `;
   let userMessage = ``;
-  const templatePromptFile = files.filter((x) => x.path.startsWith('.bolt')).find((x) => x.name == 'prompt');
+  const templatePromptFile = files.filter((x) => x.path.startsWith('.webbanao')).find((x) => x.name == 'prompt');
 
   if (templatePromptFile) {
     userMessage = `

@@ -1,18 +1,18 @@
-import type { ActionType, BoltAction, BoltActionData, FileAction, ShellAction, SupabaseAction } from '~/types/actions';
-import type { BoltArtifactData } from '~/types/artifact';
+import type { ActionType, WebBanaoAction, WebBanaoActionData, FileAction, ShellAction, SupabaseAction } from '~/types/actions';
+import type { WebBanaoArtifactData } from '~/types/artifact';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
 
-const ARTIFACT_TAG_OPEN = '<boltArtifact';
-const ARTIFACT_TAG_CLOSE = '</boltArtifact>';
-const ARTIFACT_ACTION_TAG_OPEN = '<boltAction';
-const ARTIFACT_ACTION_TAG_CLOSE = '</boltAction>';
-const BOLT_QUICK_ACTIONS_OPEN = '<bolt-quick-actions>';
-const BOLT_QUICK_ACTIONS_CLOSE = '</bolt-quick-actions>';
+const ARTIFACT_TAG_OPEN = '<webbanaoArtifact';
+const ARTIFACT_TAG_CLOSE = '</webbanaoArtifact>';
+const ARTIFACT_ACTION_TAG_OPEN = '<webbanaoAction';
+const ARTIFACT_ACTION_TAG_CLOSE = '</webbanaoAction>';
+const WEBBANAO_QUICK_ACTIONS_OPEN = '<webbanao-quick-actions>';
+const WEBBANAO_QUICK_ACTIONS_CLOSE = '</webbanao-quick-actions>';
 
 const logger = createScopedLogger('MessageParser');
 
-export interface ArtifactCallbackData extends BoltArtifactData {
+export interface ArtifactCallbackData extends WebBanaoArtifactData {
   messageId: string;
   artifactId?: string;
 }
@@ -21,7 +21,7 @@ export interface ActionCallbackData {
   artifactId: string;
   messageId: string;
   actionId: string;
-  action: BoltAction;
+  action: WebBanaoAction;
 }
 
 export type ArtifactCallback = (data: ArtifactCallbackData) => void;
@@ -52,8 +52,8 @@ interface MessageState {
   insideArtifact: boolean;
   insideAction: boolean;
   artifactCounter: number;
-  currentArtifact?: BoltArtifactData;
-  currentAction: BoltActionData;
+  currentArtifact?: WebBanaoArtifactData;
+  currentAction: WebBanaoActionData;
   actionId: number;
 }
 
@@ -100,14 +100,14 @@ export class StreamingMessageParser {
     let earlyBreak = false;
 
     while (i < input.length) {
-      if (input.startsWith(BOLT_QUICK_ACTIONS_OPEN, i)) {
-        const actionsBlockEnd = input.indexOf(BOLT_QUICK_ACTIONS_CLOSE, i);
+      if (input.startsWith(WEBBANAO_QUICK_ACTIONS_OPEN, i)) {
+        const actionsBlockEnd = input.indexOf(WEBBANAO_QUICK_ACTIONS_CLOSE, i);
 
         if (actionsBlockEnd !== -1) {
-          const actionsBlockContent = input.slice(i + BOLT_QUICK_ACTIONS_OPEN.length, actionsBlockEnd);
+          const actionsBlockContent = input.slice(i + WEBBANAO_QUICK_ACTIONS_OPEN.length, actionsBlockEnd);
 
-          // Find all <bolt-quick-action ...>label</bolt-quick-action> inside
-          const quickActionRegex = /<bolt-quick-action([^>]*)>([\s\S]*?)<\/bolt-quick-action>/g;
+          // Find all <webbanao-quick-action ...>label</webbanao-quick-action> inside
+          const quickActionRegex = /<webbanao-quick-action([^>]*)>([\s\S]*?)<\/webbanao-quick-action>/g;
           let match;
           const buttons = [];
 
@@ -126,7 +126,7 @@ export class StreamingMessageParser {
             );
           }
           output += createQuickActionGroup(buttons);
-          i = actionsBlockEnd + BOLT_QUICK_ACTIONS_CLOSE.length;
+          i = actionsBlockEnd + WEBBANAO_QUICK_ACTIONS_CLOSE.length;
           continue;
         }
       }
@@ -171,7 +171,7 @@ export class StreamingMessageParser {
                */
               actionId: String(state.actionId - 1),
 
-              action: currentAction as BoltAction,
+              action: currentAction as WebBanaoAction,
             });
 
             state.insideAction = false;
@@ -217,7 +217,7 @@ export class StreamingMessageParser {
                 artifactId: currentArtifact.id,
                 messageId,
                 actionId: String(state.actionId++),
-                action: state.currentAction as BoltAction,
+                action: state.currentAction as WebBanaoAction,
               });
 
               i = actionEndIndex + 1;
@@ -280,7 +280,7 @@ export class StreamingMessageParser {
                 id: artifactId,
                 title: artifactTitle,
                 type,
-              } satisfies BoltArtifactData;
+              } satisfies WebBanaoArtifactData;
 
               state.currentArtifact = currentArtifact;
 
@@ -388,7 +388,7 @@ export class StreamingMessageParser {
 
 const createArtifactElement: ElementFactory = (props) => {
   const elementProps = [
-    'class="__boltArtifact__"',
+    'class="__webbanaoArtifact__"',
     ...Object.entries(props).map(([key, value]) => {
       return `data-${camelToDashCase(key)}=${JSON.stringify(value)}`;
     }),
@@ -403,8 +403,8 @@ function camelToDashCase(input: string) {
 
 function createQuickActionElement(props: Record<string, string>, label: string) {
   const elementProps = [
-    'class="__boltQuickAction__"',
-    'data-bolt-quick-action="true"',
+    'class="__webbanaoQuickAction__"',
+    'data-webbanao-quick-action="true"',
     ...Object.entries(props).map(([key, value]) => `data-${camelToDashCase(key)}=${JSON.stringify(value)}`),
   ];
 
@@ -412,5 +412,5 @@ function createQuickActionElement(props: Record<string, string>, label: string) 
 }
 
 function createQuickActionGroup(buttons: string[]) {
-  return `<div class=\"__boltQuickAction__\" data-bolt-quick-action=\"true\">${buttons.join('')}</div>`;
+  return `<div class=\"__webbanaoQuickAction__\" data-webbanao-quick-action=\"true\">${buttons.join('')}</div>`;
 }

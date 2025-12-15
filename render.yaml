@@ -1,0 +1,21 @@
+
+services:
+  - type: web
+    name: webbanao
+    env: node
+    plan: free
+    buildCommand: "pnpm install && pnpm run build"
+    startCommand: "remix-serve ./build/index.js"
+    envVars:
+      - key: NODE_VERSION
+        value: "18.18.0"
+      - key: VITE_OPENAI_LIKE_API_BASE_URL
+        value: ""
+      - key: VITE_OPENAI_LIKE_API_MODELS
+        value: ""
+      - key: VITE_OLLAMA_API_BASE_URL
+        value: ""
+      - key: VITE_LMSTUDIO_API_BASE_URL
+        value: ""
+      - key: VITE_TOGETHER_API_BASE_URL
+        value: ""
